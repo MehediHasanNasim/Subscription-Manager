@@ -1,0 +1,57 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# Django secret settings
+.env
+*.env
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+
+# Windows
+Thumbs.db
+ehthumbs.db
+
+# Migrations (optional, if you don’t want to commit them early)
+# */migrations/
+# !*/migrations/__init__.py
+
+# Log files
+*.log
+
+# Test reports
+htmlcov/
+coverage.xml
+*.cover
+
+# Static & media (if collected/generated)
+staticfiles/
+static/
+media/
+
+# Node (if using any front-end tools like webpack or npm)
+node_modules/
+package-lock.json
+
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*$py.class
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
