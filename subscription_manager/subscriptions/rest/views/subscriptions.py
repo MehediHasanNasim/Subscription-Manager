@@ -1,3 +1,6 @@
+import requests
+from datetime import timedelta
+from datetime import datetime
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -13,8 +16,7 @@ from subscriptions.rest.serializers.subscriptions import (
     CancelSubscriptionSerializer,
     ExchangeRateSerializer
 )
-import requests
-from datetime import timedelta
+from subscriptions.services.exchange_rate import get_exchange_rate
 
 
 class LogoutView(APIView):
@@ -84,44 +86,27 @@ class SubscriptionViewSet(viewsets.ViewSet):
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class ExchangeRateView(viewsets.ViewSet):
     def list(self, request):
         base = request.query_params.get('base', 'USD').upper()
         target = request.query_params.get('target', 'BDT').upper()
         
-        # Try to get cached rate first (last 10 minutes)
-        cached_rate = ExchangeRateLog.objects.filter(
-            base_currency=base,
-            target_currency=target,
-            fetched_at__gte=timezone.now() - timedelta(minutes=10)
-        ).first()
-        
-        if cached_rate:
-            serializer = ExchangeRateSerializer(cached_rate)
-            return Response(serializer.data)
-        
-        # Fetch from external API if no cached version
         try:
-            # Using ExchangeRate-API (you'll need an API key)
-            response = requests.get(
-                f'https://v6.exchangerate-api.com/v6/YOUR_API_KEY/pair/{base}/{target}'
-            )
-            data = response.json()
-            
-            if data.get('result') == 'success':
-                rate = ExchangeRateLog.objects.create(
-                    base_currency=base,
-                    target_currency=target,
-                    rate=data['conversion_rate']
-                )
-                return Response(ExchangeRateSerializer(rate).data)
-            else:
-                return Response(
-                    {'error': 'Failed to fetch exchange rate'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-        except requests.RequestException:
+            rate = get_exchange_rate(base, target)
+            return Response({
+                'base_currency': base,
+                'target_currency': target,
+                'rate': rate,
+                'fetched_at': datetime.now().isoformat()
+            })
+        except ValueError as e:
             return Response(
-                {'error': 'Exchange rate service unavailable'},
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {'error': 'An unexpected error occurred'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
             )

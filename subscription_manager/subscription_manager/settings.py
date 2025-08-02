@@ -158,3 +158,8 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+
+EXCHANGE_RATE_API_KEY = config('EXCHANGE_RATE_API_KEY')
+EXCHANGE_RATE_API_URL = config('EXCHANGE_RATE_API_URL')
+CACHE_TTL = 60 * 10  # 10 minutes cache

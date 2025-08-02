@@ -60,6 +60,8 @@ class ExchangeRateLog(models.Model):
     target_currency = models.CharField(max_length=3)
     rate = models.DecimalField(max_digits=12, decimal_places=6)
     fetched_at = models.DateTimeField(auto_now_add=True)
+    error_message = models.TextField(null=True, blank=True)
+    success = models.BooleanField(default=True)
     
     def __str__(self):
         return f"{self.base_currency}→{self.target_currency}: {self.rate}"
@@ -71,3 +73,12 @@ class ExchangeRateLog(models.Model):
             models.Index(fields=['fetched_at']),
         ]
         verbose_name = "Exchange Rate Log"
+        
+    @classmethod
+    def log_failure(cls, base_currency, target_currency, error):
+        return cls.objects.create(
+            base_currency=base_currency,
+            target_currency=target_currency,
+            success=False,
+            error_message=str(error)
+        )
