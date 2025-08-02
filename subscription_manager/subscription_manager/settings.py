@@ -47,6 +47,7 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
+    'django_celery_beat',
 ]
 
 PROJECT_APPS = [
@@ -163,3 +164,10 @@ REST_FRAMEWORK = {
 EXCHANGE_RATE_API_KEY = config('EXCHANGE_RATE_API_KEY')
 EXCHANGE_RATE_API_URL = config('EXCHANGE_RATE_API_URL')
 CACHE_TTL = 60 * 10  # 10 minutes cache
+
+
+# Celery settings
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TIMEZONE = 'Asia/Dhaka'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

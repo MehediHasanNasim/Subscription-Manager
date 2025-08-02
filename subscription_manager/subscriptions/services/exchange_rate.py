@@ -12,8 +12,10 @@ def get_exchange_rate(base_currency, target_currency):
         return cached_rate
     
     try:
-        url = f"{settings.EXCHANGE_RATE_API_URL}{settings.EXCHANGE_RATE_API_KEY}/pair/{base_currency}/{target_currency}"
-        response = requests.get(url)
+        response = requests.get(
+            f"{settings.EXCHANGE_RATE_API_URL}{settings.EXCHANGE_RATE_API_KEY}/pair/{base_currency}/{target_currency}",
+            timeout=10  
+        )
         data = response.json()
         
         if data.get('result') == 'success':
