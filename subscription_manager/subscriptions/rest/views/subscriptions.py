@@ -10,14 +10,19 @@ from rest_framework import status
 from rest_framework.exceptions import ValidationError
 from django.utils import timezone
 from django.db import transaction
-from subscriptions.models import Subscription, ExchangeRateLog
+from subscriptions.models import Subscription, ExchangeRateLog, Plan
 from subscriptions.rest.serializers.subscriptions import (
     SubscriptionSerializer,
     CancelSubscriptionSerializer,
-    ExchangeRateSerializer
+    ExchangeRateSerializer,
+    PlanSerializer
 )
 from subscriptions.services.exchange_rate import get_exchange_rate
-
+from subscriptions.rest.permissions import (
+    IsAdminOrOwnerForSubscriptions,
+    IsAdminOrStaffReadOnly,
+    IsAdminOrStaffCanManagePlan
+)
 
 class LogoutView(APIView):
     def post(self, request):
@@ -29,10 +34,17 @@ class LogoutView(APIView):
     
     
 class SubscriptionViewSet(viewsets.ViewSet):
+    permission_classes = [IsAdminOrOwnerForSubscriptions]
+
     def list(self, request):
-        subscriptions = Subscription.objects.filter(user=request.user)
+        if request.user.is_superuser or request.user.is_staff:
+            subscriptions = Subscription.objects.all()
+        else:
+            subscriptions = Subscription.objects.filter(user=request.user)
+
         serializer = SubscriptionSerializer(subscriptions, many=True)
         return Response(serializer.data)
+
 
     @transaction.atomic
     def create(self, request):
@@ -91,6 +103,8 @@ class SubscriptionViewSet(viewsets.ViewSet):
 
 
 class ExchangeRateView(viewsets.ViewSet):
+    permission_classes = [IsAdminOrStaffReadOnly]
+
     def list(self, request):
         base = request.query_params.get('base', 'USD').upper()
         target = request.query_params.get('target', 'BDT').upper()
@@ -113,3 +127,9 @@ class ExchangeRateView(viewsets.ViewSet):
                 {'error': 'An unexpected error occurred'},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE
             )
+        
+
+class PlanViewSet(viewsets.ModelViewSet):
+    queryset = Plan.objects.all()
+    serializer_class = PlanSerializer
+    permission_classes = [IsAdminOrStaffCanManagePlan]
