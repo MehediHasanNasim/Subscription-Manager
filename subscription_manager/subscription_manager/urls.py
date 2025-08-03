@@ -20,5 +20,6 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls')),  # Adds login to browsable API
-    path('api/', include(('subscriptions.rest.urls', 'subscriptions'), namespace='subscriptions_api')),
+    path('api/', include(('subscriptions.rest.urls', 'subscriptions'), namespace='subscriptions_api')),  # All API endpoints
+    path('', include(('subscriptions.rest.urls.frontend_urls', 'subscriptions'), namespace='frontend')),  # Frontend views
 ]

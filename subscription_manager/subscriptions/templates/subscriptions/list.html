@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}All Subscriptions{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h2 class="mb-0">All Subscriptions</h2>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Plan</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subscription in subscriptions %}
+                    <tr>
+                        <td>{{ subscription.user.username }}</td>
+                        <td>{{ subscription.plan.name }}</td>
+                        <td>{{ subscription.start_date|date:"Y-m-d" }}</td>
+                        <td>{{ subscription.end_date|date:"Y-m-d" }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if subscription.status == 'active' %}bg-success
+                                {% elif subscription.status == 'cancelled' %}bg-warning text-dark
+                                {% else %}bg-secondary
+                                {% endif %}">
+                                {{ subscription.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center">No subscriptions found</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

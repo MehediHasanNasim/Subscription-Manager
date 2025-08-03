@@ -1,6 +1,12 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from subscriptions.rest.views.subscriptions import SubscriptionViewSet, ExchangeRateView, LogoutView, PlanViewSet
+from subscriptions.rest.views.subscriptions import (
+    SubscriptionViewSet, 
+    ExchangeRateView, 
+    LogoutView, 
+    PlanViewSet, 
+    SubscriptionListView
+)
 
 from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.decorators import api_view

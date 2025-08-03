@@ -1,4 +1,6 @@
 import requests
+from django.shortcuts import render
+from django.views import View
 from datetime import timedelta
 from datetime import datetime
 from rest_framework import status, viewsets
@@ -32,7 +34,15 @@ class LogoutView(APIView):
             status=status.HTTP_200_OK
         )
     
-    
+class SubscriptionListView(View):
+    def get(self, request):
+        subscriptions = Subscription.objects.select_related(
+            'user', 'plan'
+        ).order_by('-start_date')
+        
+        return render(request, 'subscriptions/list.html', {
+            'subscriptions': subscriptions
+        })
 class SubscriptionViewSet(viewsets.ViewSet):
     permission_classes = [IsAdminOrOwnerForSubscriptions]
 
