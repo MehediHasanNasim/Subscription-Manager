@@ -36,21 +36,19 @@ class SubscriptionViewSet(viewsets.ViewSet):
 
     @transaction.atomic
     def create(self, request):
-        serializer = SubscriptionSerializer(
-            data=request.data,
-            context={'request': request}
-        )
-        if serializer.is_valid():
-            plan = serializer.validated_data['plan']
-
-            # Check if user already subscribed to this plan
-            if Subscription.objects.filter(user=request.user, plan=plan).exists():
-                raise ValidationError("You are already subscribed to this plan.")
+        try:
+            serializer = SubscriptionSerializer(
+                data=request.data,
+                context={'request': request}
+            )
+            serializer.is_valid(raise_exception=True)
             
-            # Calculate end date based on plan duration
+            # Calculate end date
+            plan = serializer.validated_data['plan']
             start_date = timezone.now().date()
             end_date = start_date + timedelta(days=plan.duration_days)
             
+            # Create subscription
             subscription = Subscription.objects.create(
                 user=request.user,
                 plan=plan,
@@ -63,8 +61,13 @@ class SubscriptionViewSet(viewsets.ViewSet):
                 SubscriptionSerializer(subscription).data,
                 status=status.HTTP_201_CREATED
             )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+            
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
     @action(detail=False, methods=['post'])
     def cancel(self, request):
         serializer = CancelSubscriptionSerializer(data=request.data)

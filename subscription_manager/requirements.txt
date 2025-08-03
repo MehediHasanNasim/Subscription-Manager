@@ -12,10 +12,12 @@ colorama==0.4.6
 cron-descriptor==1.4.5
 Django==5.2.4
 django-celery-beat==2.8.1
+django-mysql==4.17.0
 django-timezone-field==7.1
 djangorestframework==3.16.0
 idna==3.10
 kombu==5.5.4
+mysqlclient==2.2.7
 packaging==25.0
 prompt_toolkit==3.0.51
 python-crontab==3.3.0
