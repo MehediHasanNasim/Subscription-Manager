@@ -10,6 +10,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
 from django.utils import timezone
 from django.db import transaction
 from subscriptions.models import Subscription, ExchangeRateLog, Plan
@@ -44,7 +45,7 @@ class SubscriptionListView(View):
             'subscriptions': subscriptions
         })
 class SubscriptionViewSet(viewsets.ViewSet):
-    permission_classes = [IsAdminOrOwnerForSubscriptions]
+    permission_classes = [IsAuthenticated, IsAdminOrOwnerForSubscriptions]
 
     def list(self, request):
         if request.user.is_superuser or request.user.is_staff:
